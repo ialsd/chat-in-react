@@ -1,0 +1,17 @@
+.modal-form{
+    height: 50vh;
+    width: 50vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(197, 196, 196);
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.modal-container{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
