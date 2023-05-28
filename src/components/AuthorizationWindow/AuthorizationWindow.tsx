@@ -6,12 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
-const AuthorizationWindow = () => {
+const AuthorizationWindow = (props: any) => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
   
     const handleFormSubmit = (values: any) => {
-      console.log('Submitted values:', values);
+      localStorage.setItem('userName', values.name);
+      props.setUserName(values.name);
       navigate(`/chat/${values.chat}`);
     };
   

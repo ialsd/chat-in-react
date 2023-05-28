@@ -1,16 +1,22 @@
 import './styles.scss';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Layout, List, Input } from 'antd';
-import React, { useState, useEffect } from 'react';
-import chatDataJSON from '../../data/chatData.json'
+import React, { useState, useEffect, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendMessage } from '../../reducers/actions';
+import { RootState } from '../../reducers/types';
+import { Chat } from '../../types/chat';
 
 const { Content, Sider } = Layout;
 
-const ChatComponent = () => {
+const ChatComponent = (props: {userName: string}) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { chatId } = useParams();
-
+  const [userName, setUserName] = useState(() => {
+    const storedUserName = localStorage.getItem('userName');
+    return storedUserName ? storedUserName : '';
+  });
   const handleBackButtonClick = () => {
     navigate('/');
   };
@@ -19,34 +25,25 @@ const ChatComponent = () => {
     setSelectedChat(chatId);
   };
 
-  const [chatData, setChatData] = useState(chatDataJSON);
-
-  const [selectedChat, setSelectedChat] = useState(Number(chatId ? chatId[chatId?.length - 1] : null));
+  const chatData = useSelector((state: RootState) => state.chatData);
+  console.log(chatData);
+  const [selectedChat, setSelectedChat] = useState<number | null>(Number(chatId ? chatId[chatId?.length - 1] : null));
   const [inputValue, setInputValue] = useState('');
 
-  const selectedChatData = selectedChat ? chatData.find((chat) => chat.id === selectedChat) : null;
+  const selectedChatData = selectedChat ? chatData.find((chat: Chat) => chat.id === selectedChat) : null;
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
   };
 
   const handleSendMessage = () => {
-    if (inputValue.trim() !== '') {
-      const newMessage = inputValue.trim();
-      const updatedChatData = chatData.map((chat) => {
-        if (chat.id === selectedChat) {
-          return {
-            ...chat,
-            messages: [...chat.messages, newMessage],
-          };
-        }
-        return chat;
-      });
-      // Обновление состояния chatData
-      setChatData(updatedChatData);
+    if (inputValue.trim() !== '' && selectedChat !== null) {
+      dispatch(sendMessage(selectedChat, `${userName}: ${inputValue.trim()}`));
       setInputValue('');
     }
   };
+
+  console.log(selectedChatData?.messages);
 
   useEffect(() => {
     if (selectedChat) {
@@ -59,7 +56,7 @@ const ChatComponent = () => {
       <Sider theme="light" width={200}>
         <List
           dataSource={chatData}
-          renderItem={(item) => (
+          renderItem={(item: Chat) => (
             <List.Item
               key={item.id}
               className={`chat-item ${selectedChat === item.id ? 'selected' : ''}`}
@@ -74,14 +71,14 @@ const ChatComponent = () => {
         <div className="chat-container">
           <Layout>
             <Content style={{ width: '1100px', height: '80vh' }}>
-              {selectedChatData ? (
+            {selectedChatData ? (
                 <div className="chat-messages">
                   <div className="chat">
                     <h3>{selectedChatData.label}</h3>
                     <ul>
-                      {selectedChatData.messages.map((message, index) => (
-                        <div className='message-content'>
-                            <li key={index}><span>{message}</span></li>
+                      {selectedChatData.messages.map((message: string, index: number) => (
+                        <div className='message-content' key={index}>
+                          <li><span>{message}</span></li>
                         </div>
                       ))}
                     </ul>

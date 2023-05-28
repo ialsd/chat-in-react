@@ -1,18 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import AuthorizationWindow from './components/AuthorizationWindow/AuthorizationWindow';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ChatComponent from './components/ChatComponent/ChatComponent';
+import { Provider } from 'react-redux';
+import store from './store';
 
 function App() {
+  const [userName, setUserName] = useState('');
   return (
     <div className="App">
-      <Router>
-        <Routes>
-          <Route path='/' element={<AuthorizationWindow />}></Route>
-          <Route path='/chat/:chatId' element={<ChatComponent />}></Route>
-        </Routes>
-      </Router>
+      <Provider store={store}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<AuthorizationWindow setUserName={setUserName}/>} />
+            <Route path="/chat/:chatId" element={<ChatComponent userName={userName}/>} />
+          </Routes>
+        </Router>
+      </Provider>
     </div>
   );
 }
